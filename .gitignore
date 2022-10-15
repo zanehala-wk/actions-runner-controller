@@ -1,5 +1,6 @@
-# Deploy Assets
+# Build/Publish Assets
 release
+.tools
 
 # Binaries for programs and plugins
 *.exe
@@ -24,13 +25,14 @@ bin
 *.swp
 *.swo
 *~
-
 .envrc
 .env
 .test.env
 *.pem
 
-# OS
+# OS Rubbish
 .DS_STORE
+[Tt]umbs.db
 
+# Other
 /test-assets
