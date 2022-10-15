@@ -117,7 +117,11 @@ generate: controller-gen
 
 # Run shellcheck on runner scripts
 shellcheck: shellcheck-install
-	$(TOOLS_PATH)/shellcheck --shell bash --source-path runner runner/*.bash runner/*.sh
+ifeq (, $(shell which shellcheck))
+	$(shell $(TOOLS_PATH)/shellcheck --shell bash --source-path runner runner/*.bash runner/*.sh runner/update-status)
+else
+	$(shell shellcheck --shell bash --source-path runner runner/*.bash runner/*.sh runner/update-status)
+endif
 
 docker-buildx:
 	export DOCKER_CLI_EXPERIMENTAL=enabled ;\
@@ -261,8 +265,8 @@ YQ=$(GOBIN)/yq
 # find or download shellcheck
 # download shellcheck if necessary
 shellcheck-install:
-ifeq (, $(wildcard $(TOOLS_PATH)/shellcheck))
-	echo "Downloading shellcheck"
+ifeq (, $(shell which shellcheck))
+	$(info "INFO: shellcheck not found locally, downloading")
 	@{ \
 	set -e ;\
 	SHELLCHECK_TMP_DIR=$$(mktemp -d) ;\
@@ -274,8 +278,10 @@ ifeq (, $(wildcard $(TOOLS_PATH)/shellcheck))
 	mv $$SHELLCHECK_TMP_DIR/shellcheck-v$(SHELLCHECK_VERSION)/shellcheck $(TOOLS_PATH)/ ;\
 	rm -rf $$SHELLCHECK_TMP_DIR ;\
 	}
+	SHELLCHECK=$(TOOLS_PATH)/shellcheck
+else
+	$(info "INFO: shellcheck found locally")
 endif
-SHELLCHECK=$(TOOLS_PATH)/shellcheck
 
 OS_NAME := $(shell uname -s | tr A-Z a-z)
 
